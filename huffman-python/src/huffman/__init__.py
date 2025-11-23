@@ -1,0 +1,1 @@
+# Este archivo inicializa el paquete `huffman`. No contiene código específico, pero permite que el directorio sea tratado como un paquete de Python.

@@ -1,0 +1,13 @@
+1. Generar un grafo con 15 vértices aleatorios no repetidos (números del 1 al 100).
+   Luego:
+   - Agregar 30 aristas no repetidas que conecten vértices de manera aleatoria.
+   - Cada arista tendrá una etiqueta aleatoria en el rango de 1 a 100.
+
+   Actividades:
+   a) Eliminar los vértices que hayan quedado desconectados (sin aristas entrantes ni salientes).
+   b) Determinar el nodo con mayor cantidad de aristas que salen de él (puede haber más de uno).
+   c) Determinar el nodo con mayor cantidad de aristas que llegan a él (puede haber más de uno).
+   d) Indicar los vértices desde los cuales no se puede acceder a otro vértice.
+   e) Contar cuántos vértices componen el grafo, dado que se genera aleatoriamente y se eliminan los vértices desconectados.
+   f) Determinar cuántos vértices tienen una arista a sí mismos (ciclo directo).
+   g) Determinar la arista más larga, indicando su origen, destino y valor (puede haber más de una).
