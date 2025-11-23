@@ -5,23 +5,23 @@ class ejemplo_grafo_dirigido:
         self.grafo_dict = {}
 
     def agregar_nodo(self, nodo):
-            if nodo not in self.grafo_dict:
-                self.grafo_dict = []
-                print ("nodo agregado correctamente")
-            else:
-                 return "nodo ya agregado"
+        if nodo not in self.grafo_dict:
+            self.grafo_dict = []
+            print ("nodo agregado correctamente")
+        else:
+            return "nodo ya agregado"
             
     def agregar_arista(self, arista):
-                  nodo1 = arista.get_nodo1()
-                            nodo2 = arista.get_nodo2()
-                                        if nodo1 not in self.grafo_dict:
-                                                        print(f"El nodo origen {nodo1} no existe.")
-                                                                        return
-                                                                                    if nodo2 not in self.grafo_dict:
-                                                                                                    print(f"El nodo destino {nodo2} no existe.")
-                                                                                                                    return
-                                                                                                                                self.grafo_dict[nodo1].append(nodo2)
-                                                                                                                                            print(f"Arista agregada de {nodo1} a {nodo2}.")
+        nodo1 = arista.get_nodo1()
+        nodo2 = arista.get_nodo2()
+        if nodo1 not in self.grafo_dict:
+            print(f"El nodo origen {nodo1} no existe.")
+            return
+        if nodo2 not in self.grafo_dict:
+            print(f"El nodo destino {nodo2} no existe.")
+            return
+        self.grafo_dict[nodo1].append(nodo2)
+        print(f"Arista agregada de {nodo1} a {nodo2}.")
           
 
 class ejemplo_arista:
@@ -39,11 +39,11 @@ class ejemplo_arista:
     
 
 class ejemplo_nodo:
-     def __init__(self, nombre):
-          self.nombre = nombre
+    def __init__(self, nombre):
+        self.nombre = nombre
 
     def get_nombre(self):
-          return self.nombre
+        return self.nombre
 
     def __str__(self):
-          return f"{self.nombre}"
+        return f"{self.nombre}"
