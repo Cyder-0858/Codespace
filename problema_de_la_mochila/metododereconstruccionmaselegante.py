@@ -1,0 +1,2 @@
+clas node:
+    def
