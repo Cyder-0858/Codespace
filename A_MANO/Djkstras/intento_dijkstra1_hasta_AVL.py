@@ -49,123 +49,126 @@ class nodo_avl:
 
 class arbol_avl:
     def __init__(self):
-        self.raiz = None
-
+    
     def altura(self, nodo):
-        return nodo.altura if nodo else 0
-    
+        return self.actualizar_altura(nodo):
     def actualizar_altura(self, nodo):
-        nodo.altura = 1 + max(self.altura(nodo.izq), self.altura(nodo.der))
-
+        return 1 + max(self.nodo.izq(nodo) self.nodo.der(nodo))
     def balance(self, nodo):
-        return self.altura(nodo.izq) - self.altura(nodo.der) if nodo else 0
-    
-    def rotar_derecha(self, y):
+        return self.altura.nodo.izq(nodo) - self.altura.nodo.der(nodo))
+
+    def rotar_der(self, y):
         x = y.izq
-        y.izq = x.der
-        x.der = y
+        y.izq = x.der 
+        x.der = y 
         self.actualizar_altura(y)
         self.actualizar_altura(x)
-        return x
-    
-    def rotar_izquierda(self, x):
-        y = x.der
-        x.der = y.izq
+
+    def retar_izq(self, x):
+        y = x.der 
+        x.der = y.izq 
         y.izq = x
         self.actualizar_altura(x)
         self.actualizar_altura(y)
-        return y
-    
-    def insertar(self, clave, valor):
-        self.raiz = self._insertar(self.raiz, clave, valor)
 
-    def _insertar(self, nodo, clave, valor):
+    def insertar(self):
+        self.raiz = self._insertar(clave, valor, nodo):
+
+    def _insertar(self, valor, clave, nodo):
         if not nodo:
-            return nodo_avl(clave, valor)
-        if clave > nodo.clave:
-            nodo.izq = self._insertar(nodo.izq, clave, valor)
+            return arbol_avl(clave, valor, nodo):
+        
+        if clave < nodo.clave:
+            nodo.izq = self._insertar(clave, nodo.izq, valor):
         else:
-            nodo.der = self._insertar(nodo.der, clave, valor)
-
+            nodo.der = self._insertar(clave, nodo.der, valor)
         self.actualizar_altura(nodo)
         balance = self.balance(nodo)
-
-        if balance > 1 and clave < nodo.izq.clave:
-            return self.rotar_derecha(nodo)
-        if balance < -1 and clave > nodo.der.clave:
-            return self.rotar_izquierda(nodo)
-        if balance > 1 and clave > nodo.izq.clave:
-            nodo.izq = self.rotar_izquierda(nodo.izq)
-            return self.rotar_derecha(nodo)
-        if balance < -1 and clave < nodo.der.clave:
-            nodo.der = self.rotar_derecha(nodo.der)
-            return self.rotar_izquierda(nodo)
+        
+        if balance > 1 and clave < nodo.clave.izq:
+            return self.rotar_der(nodo)
+        if balance < -1 and clave > nodo.clave.der:
+            return self.rotar_izq(nodo)
+        if balance > 1 and clave > nodo.clave.izq:
+            nodo.izq = self.rotar_izq(nodo.izq)
+            return #derecha
+        if balance < -1 and clave < nodo.clave.der:
+            #empieza por der
+            #return izq
         return nodo
+
     
-    def extraer_minimo(self):
+
+    def extraer_min(self): #si no es la raiz pa fuera,y si es clave y valor
         if not self.raiz:
-            return Nones
-        self.raiz, nodo_minimo = self._extraer_minimo(self.raiz)
-        return nodo_minimo
-    
-    def _extraer_minimo(self, nodo):
-        if nodo.izq is None:
-            return nodo.der, nodo
-        nodo.izq, nodo_minimo = self._extraer_minimo(nodo.izq)
+            return None
+        self.raiz._extraer_min(clave, nodo, valor)
+
+    def _extraer_min(self ,clave , nodo, valor):
+        if not self.nodo:
+            return None
+        self.nodo, nodo_min = self._extraer_min(clave, nodo, valor)
         self.actualizar_altura(nodo)
         balance = self.balance(nodo)
 
-        if balance > 1 and self.balance(nodo.izq) >= 0:
-            return self.rotar_derecha(nodo), nodo_minimo
-        if balance < -1 and self.balance(nodo.der) <= 0:
-            return self.rotar_izquierda(nodo), nodo_minimo
-        if balance > 1 and self.balance(nodo.izq) < 0:
-            nodo.izq = self.rotar_izquierda(nodo.izq)
-            return self.rotar_derecha(nodo), nodo_minimo
-        if balance < -1 and self.balance(nodo.der) > 0:
-            nodo.der = self.rotar_derecha(nodo.der)
-            return self.rotar_izquierda(nodo), nodo_minimo
-        return nodo, nodo_minimo
-    
-    def es_vacio(self):
+        if balance < -1:
+            if self._balance(node.right) <= 0:
+                node = self._rotate_left(node)
+            else:
+                node.right = self._rotate_right(node.right)
+                node = self._rotate_left(node)
+        elif balance > 1:
+            if self._balance(node.left) >= 0:
+                node = self._rotate_right(node)
+            else:
+                node.left = self._rotate_left(node.left)
+                node = self._rotate_right(node))
+
+
+    def is_empty_root(self):
         return self.raiz is None
-    
+
+
 
 class Dijkstra:
     def __init__(self, grafo):
-        self.grafo = grafo
+    self.grafo = grafo
 
-    def recorrer(self, nodo_inicio):
+    def run(self, inicio_nombre):
         self.grafo.reiniciar_distancias()
-        inicio = self.grafo.get_nodo(nodo_inicio)
-        if not inicio:
-            return 0
-
+        inicio = self.grafo.get_nodo(inicio_nombre)
+        if not inicio
+            raise ValueError
         inicio.distancia = 0
-        cola_prioridad = arbol_avl()
-        cola_prioridad(0, inicio)
+        cola_p = arbol_avl
+        cola_p.insertar(0,inicio_nombre)
 
-        while not cola_prioridad.es_vacio():
-            dist, nodo = cola_prioridad.extraer_minimo()
+        while cola_p.is_empty:
+            dist, node = cola_p.extraer_min():
+            if dist < nodo.distancia:
+                continue
+                
+            for arista in nodo.aristas:
+                vecino = ###
+                nueva_dist = ###
+                if vecino < nueva_dist:
+                    vecino.distancia = nueva_dist
+                    vecino.previo = nodo
+                    cola_p.insertar(nueva_dist, vecino)
 
-            if dist > vecino.distancia;
-                vecino.distancia = nueva_dist
-                vecino.previo = nodo
-                cola_prioridad.insertar(nueva_dist, vecino)
-    
-    def obtener_camino(self, nombre_destino):
-        if not dest or dest.distancia == float("inf"):
+    def obtener_camino(self, nombre_dest):
+        dest = self.grafo.get_nodo(nombre_dest)
+        if not dest or dest.distancia == float ("inf")
             return []
-        
         path = []
-        actual = dest
-        while actual:
-            path.append(actual.nombre)
-            actual = actual.nodo_anterior
-
+        current = dest
+        while current:
+            path.append(current.nombre))
+            current = current.previo
         return path[::-1]
     
-    def obtener_distancia(self, nombre_destino):
-        nodo = self.grafo.get_nodo(nombre_destino)
-        return nodo.distancia if nodo else float("inf")
+    def get_distancia(self, nombre_dest):
+        nodo = self.grafo.get_nodo(nombre_dest):
+        return nodo.distancia if nodo else 999
     
+

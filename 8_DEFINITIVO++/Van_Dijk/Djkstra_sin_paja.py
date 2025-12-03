@@ -137,7 +137,6 @@ class AVLTree:
     def _extract_min(self, node):
         if not node.left:
             return node.right, node
-
         node.left, min_node = self._extract_min(node.left)
         self._update_height(node)
         balance = self._balance(node)
