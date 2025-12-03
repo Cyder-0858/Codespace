@@ -1,0 +1,1492 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía AVL - Aprende a Balancear Árboles</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=JetBrains+Mono:wght@400;600&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --accent-green: #7ee787;
+            --accent-blue: #58a6ff;
+            --accent-purple: #bc8cff;
+            --accent-orange: #ffa657;
+            --accent-red: #ff7b72;
+            --accent-yellow: #ffd666;
+            --text-primary: #f0f6fc;
+            --text-secondary: #8b949e;
+            --border-color: #30363d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+            border-bottom: 1px solid var(--border-color);
+            padding: 3rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(126, 231, 135, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(88, 166, 255, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .header h1 {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            position: relative;
+        }
+
+        .header .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .tree-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Navigation */
+        .nav-progress {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-dot.active {
+            background: var(--accent-green);
+            border-color: var(--accent-green);
+            transform: scale(1.2);
+        }
+
+        .nav-dot:hover {
+            border-color: var(--accent-blue);
+        }
+
+        /* Sections */
+        .section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--accent-green), var(--accent-blue));
+        }
+
+        .section-number {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 3rem;
+            color: var(--bg-tertiary);
+            opacity: 0.5;
+        }
+
+        .section h2 {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 1.5rem;
+            color: var(--accent-green);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section h3 {
+            font-size: 1.2rem;
+            color: var(--accent-blue);
+            margin: 1.5rem 0 0.75rem;
+        }
+
+        .section p {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        /* Highlight boxes */
+        .highlight-box {
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin: 1rem 0;
+            border-left: 4px solid var(--accent-purple);
+        }
+
+        .highlight-box.warning {
+            border-left-color: var(--accent-orange);
+        }
+
+        .highlight-box.success {
+            border-left-color: var(--accent-green);
+        }
+
+        .highlight-box.info {
+            border-left-color: var(--accent-blue);
+        }
+
+        .highlight-box strong {
+            color: var(--text-primary);
+        }
+
+        /* Code blocks */
+        .code-block {
+            background: #0d1117;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .code-block .comment {
+            color: var(--text-secondary);
+        }
+
+        .code-block .keyword {
+            color: var(--accent-purple);
+        }
+
+        .code-block .function {
+            color: var(--accent-blue);
+        }
+
+        .code-block .number {
+            color: var(--accent-orange);
+        }
+
+        .code-block .string {
+            color: var(--accent-green);
+        }
+
+        /* Tree Visualization */
+        .tree-container {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            text-align: center;
+            min-height: 200px;
+        }
+
+        .tree-svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .node {
+            transition: all 0.3s ease;
+        }
+
+        .node circle {
+            fill: var(--bg-tertiary);
+            stroke: var(--accent-green);
+            stroke-width: 3;
+            transition: all 0.3s ease;
+        }
+
+        .node.highlight circle {
+            fill: var(--accent-green);
+            stroke: var(--accent-yellow);
+        }
+
+        .node.unbalanced circle {
+            fill: var(--accent-red);
+            stroke: var(--accent-orange);
+        }
+
+        .node text {
+            fill: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .node .height-label {
+            fill: var(--accent-yellow);
+            font-size: 11px;
+        }
+
+        .node .balance-label {
+            fill: var(--accent-purple);
+            font-size: 11px;
+        }
+
+        .edge {
+            stroke: var(--border-color);
+            stroke-width: 2;
+            transition: all 0.3s ease;
+        }
+
+        .edge.highlight {
+            stroke: var(--accent-green);
+            stroke-width: 3;
+        }
+
+        /* Interactive Demo */
+        .demo-controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 1.5rem 0;
+        }
+
+        .btn {
+            font-family: 'Nunito', sans-serif;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-green), #5cb870);
+            color: var(--bg-primary);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(126, 231, 135, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent-blue);
+            background: var(--bg-secondary);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Rotation visualization */
+        .rotation-container {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 1rem;
+            align-items: center;
+            margin: 2rem 0;
+        }
+
+        .rotation-arrow {
+            font-size: 2rem;
+            color: var(--accent-orange);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.1); }
+        }
+
+        /* Steps list */
+        .steps-list {
+            list-style: none;
+            counter-reset: step-counter;
+        }
+
+        .steps-list li {
+            counter-increment: step-counter;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            position: relative;
+            padding-left: 3.5rem;
+        }
+
+        .steps-list li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 28px;
+            height: 28px;
+            background: var(--accent-blue);
+            color: var(--bg-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        /* Formula display */
+        .formula {
+            background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-primary));
+            border: 2px solid var(--accent-purple);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            margin: 1.5rem 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.1rem;
+        }
+
+        .formula .var {
+            color: var(--accent-blue);
+            font-weight: 600;
+        }
+
+        .formula .operator {
+            color: var(--accent-orange);
+        }
+
+        /* Case cards */
+        .case-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .case-card {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.25rem;
+            transition: all 0.3s ease;
+        }
+
+        .case-card:hover {
+            border-color: var(--accent-green);
+            transform: translateY(-4px);
+        }
+
+        .case-card h4 {
+            font-family: 'Archivo Black', sans-serif;
+            color: var(--accent-orange);
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .case-card .solution {
+            color: var(--accent-green);
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        /* Quiz section */
+        .quiz-container {
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .quiz-question {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .quiz-option {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .quiz-option:hover {
+            border-color: var(--accent-blue);
+        }
+
+        .quiz-option.correct {
+            border-color: var(--accent-green);
+            background: rgba(126, 231, 135, 0.1);
+        }
+
+        .quiz-option.incorrect {
+            border-color: var(--accent-red);
+            background: rgba(255, 123, 114, 0.1);
+        }
+
+        .quiz-feedback {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .quiz-feedback.show {
+            display: block;
+        }
+
+        .quiz-feedback.correct {
+            background: rgba(126, 231, 135, 0.1);
+            border: 1px solid var(--accent-green);
+            color: var(--accent-green);
+        }
+
+        .quiz-feedback.incorrect {
+            background: rgba(255, 123, 114, 0.1);
+            border: 1px solid var(--accent-red);
+            color: var(--accent-red);
+        }
+
+        /* Analogy box */
+        .analogy-box {
+            background: linear-gradient(135deg, rgba(188, 140, 255, 0.1), rgba(88, 166, 255, 0.1));
+            border: 1px solid var(--accent-purple);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .analogy-box .emoji {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .analogy-box h4 {
+            color: var(--accent-purple);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border-color);
+            margin-top: 2rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .section {
+                padding: 1.5rem 1rem;
+            }
+
+            .rotation-container {
+                grid-template-columns: 1fr;
+            }
+
+            .rotation-arrow {
+                transform: rotate(90deg);
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section {
+            animation: fadeIn 0.6s ease forwards;
+        }
+
+        .section:nth-child(2) { animation-delay: 0.1s; }
+        .section:nth-child(3) { animation-delay: 0.2s; }
+        .section:nth-child(4) { animation-delay: 0.3s; }
+        .section:nth-child(5) { animation-delay: 0.4s; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <span class="tree-icon">🌳</span>
+        <h1>Árboles AVL</h1>
+        <p class="subtitle">Guía completa para entender el balanceo paso a paso</p>
+    </header>
+
+    <main class="container">
+        <!-- Navigation dots -->
+        <nav class="nav-progress">
+            <div class="nav-dot active" data-section="1"></div>
+            <div class="nav-dot" data-section="2"></div>
+            <div class="nav-dot" data-section="3"></div>
+            <div class="nav-dot" data-section="4"></div>
+            <div class="nav-dot" data-section="5"></div>
+            <div class="nav-dot" data-section="6"></div>
+            <div class="nav-dot" data-section="7"></div>
+        </nav>
+
+        <!-- Section 1: Introduction -->
+        <section class="section" id="section-1">
+            <span class="section-number">01</span>
+            <h2>🤔 ¿Qué es un Árbol AVL?</h2>
+            
+            <p>Un <strong>árbol AVL</strong> es un árbol binario de búsqueda que se <strong>auto-balancea</strong>. Fue inventado en 1962 por los matemáticos soviéticos <strong>A</strong>delson-<strong>V</strong>elsky y <strong>L</strong>andis (de ahí el nombre AVL).</p>
+
+            <div class="analogy-box">
+                <div class="emoji">⚖️</div>
+                <h4>Analogía: El Equilibrista</h4>
+                <p>Imagina un equilibrista en un circo. Para no caerse, debe mantener su peso <strong>distribuido uniformemente</strong>. Si se inclina demasiado hacia un lado, ¡se cae! Un árbol AVL funciona igual: mantiene sus ramas equilibradas para no "caerse" hacia un lado y volverse ineficiente.</p>
+            </div>
+
+            <h3>¿Por qué necesitamos balance?</h3>
+            
+            <p>En un árbol binario de búsqueda normal, si insertamos números ordenados (1, 2, 3, 4, 5...), obtenemos esto:</p>
+
+            <div class="tree-container">
+                <svg class="tree-svg" viewBox="0 0 400 280" width="300">
+                    <!-- Árbol degenerado (lista) -->
+                    <line class="edge" x1="50" y1="40" x2="90" y2="90"/>
+                    <line class="edge" x1="90" y1="90" x2="130" y2="140"/>
+                    <line class="edge" x1="130" y1="140" x2="170" y2="190"/>
+                    <line class="edge" x1="170" y1="190" x2="210" y2="240"/>
+                    
+                    <g class="node">
+                        <circle cx="50" cy="40" r="22"/>
+                        <text x="50" y="45" text-anchor="middle">1</text>
+                    </g>
+                    <g class="node">
+                        <circle cx="90" cy="90" r="22"/>
+                        <text x="90" y="95" text-anchor="middle">2</text>
+                    </g>
+                    <g class="node">
+                        <circle cx="130" cy="140" r="22"/>
+                        <text x="130" y="145" text-anchor="middle">3</text>
+                    </g>
+                    <g class="node">
+                        <circle cx="170" cy="190" r="22"/>
+                        <text x="170" y="195" text-anchor="middle">4</text>
+                    </g>
+                    <g class="node">
+                        <circle cx="210" cy="240" r="22"/>
+                        <text x="210" y="245" text-anchor="middle">5</text>
+                    </g>
+                    
+                    <!-- Texto explicativo -->
+                    <text x="280" y="140" fill="#ff7b72" font-size="12" font-weight="600">¡Esto es una lista!</text>
+                    <text x="280" y="160" fill="#8b949e" font-size="11">Buscar = O(n) 😢</text>
+                </svg>
+            </div>
+
+            <p>¡Eso es básicamente una <strong>lista enlazada</strong>! Buscar el número 5 requiere visitar todos los nodos anteriores. La complejidad pasa de <code>O(log n)</code> a <code>O(n)</code>.</p>
+
+            <div class="highlight-box success">
+                <strong>✅ Con un árbol AVL balanceado:</strong> La búsqueda siempre es <code>O(log n)</code>, sin importar el orden de inserción. ¡Esa es la magia del balanceo!
+            </div>
+        </section>
+
+        <!-- Section 2: Height and Balance Factor -->
+        <section class="section" id="section-2">
+            <span class="section-number">02</span>
+            <h2>📏 Altura y Factor de Balance</h2>
+
+            <p>Antes de balancear, necesitas entender dos conceptos fundamentales:</p>
+
+            <h3>1. Altura de un nodo</h3>
+            <p>Es la <strong>distancia máxima</strong> desde ese nodo hasta una hoja (nodo sin hijos).</p>
+
+            <div class="formula">
+                <span class="var">altura</span> <span class="operator">=</span> 1 <span class="operator">+</span> max(<span class="var">altura_izq</span>, <span class="var">altura_der</span>)
+            </div>
+
+            <div class="highlight-box info">
+                <strong>📌 Reglas importantes:</strong>
+                <ul style="margin-top: 0.5rem; margin-left: 1.5rem;">
+                    <li>Un nodo <strong>hoja</strong> (sin hijos) tiene altura <strong>1</strong></li>
+                    <li>Un nodo <strong>null</strong> (vacío) tiene altura <strong>0</strong></li>
+                </ul>
+            </div>
+
+            <div class="tree-container">
+                <svg class="tree-svg" viewBox="0 0 400 220" width="350">
+                    <!-- Edges -->
+                    <line class="edge" x1="200" y1="50" x2="120" y2="110"/>
+                    <line class="edge" x1="200" y1="50" x2="280" y2="110"/>
+                    <line class="edge" x1="120" y1="110" x2="80" y2="170"/>
+                    <line class="edge" x1="120" y1="110" x2="160" y2="170"/>
+                    
+                    <!-- Nodes with height labels -->
+                    <g class="node">
+                        <circle cx="200" cy="50" r="24"/>
+                        <text x="200" y="55" text-anchor="middle">30</text>
+                        <text x="230" y="45" class="height-label">h=3</text>
+                    </g>
+                    <g class="node">
+                        <circle cx="120" cy="110" r="24"/>
+                        <text x="120" y="115" text-anchor="middle">20</text>
+                        <text x="150" y="105" class="height-label">h=2</text>
+                    </g>
+                    <g class="node">
+                        <circle cx="280" cy="110" r="24"/>
+                        <text x="280" y="115" text-anchor="middle">40</text>
+                        <text x="310" y="105" class="height-label">h=1</text>
+                    </g>
+                    <g class="node">
+                        <circle cx="80" cy="170" r="24"/>
+                        <text x="80" y="175" text-anchor="middle">10</text>
+                        <text x="110" y="165" class="height-label">h=1</text>
+                    </g>
+                    <g class="node">
+                        <circle cx="160" cy="170" r="24"/>
+                        <text x="160" y="175" text-anchor="middle">25</text>
+                        <text x="190" y="165" class="height-label">h=1</text>
+                    </g>
+                </svg>
+            </div>
+
+            <h3>2. Factor de Balance (FB)</h3>
+            <p>Es la diferencia entre la altura del subárbol izquierdo y el derecho:</p>
+
+            <div class="formula">
+                <span class="var">FB</span> <span class="operator">=</span> <span class="var">altura_izquierda</span> <span class="operator">-</span> <span class="var">altura_derecha</span>
+            </div>
+
+            <div class="highlight-box warning">
+                <strong>⚠️ Regla del AVL:</strong> El factor de balance de CADA nodo debe ser <strong>-1, 0, o 1</strong>. Si es menor que -1 o mayor que 1, ¡el árbol está desbalanceado y necesita una rotación!
+            </div>
+
+            <div class="tree-container">
+                <svg class="tree-svg" viewBox="0 0 450 220" width="400">
+                    <!-- Árbol balanceado -->
+                    <line class="edge" x1="120" y1="50" x2="70" y2="110"/>
+                    <line class="edge" x1="120" y1="50" x2="170" y2="110"/>
+                    
+                    <g class="node">
+                        <circle cx="120" cy="50" r="24"/>
+                        <text x="120" y="55" text-anchor="middle">20</text>
+                        <text x="150" y="45" class="balance-label">FB=0</text>
+                    </g>
+                    <g class="node">
+                        <circle cx="70" cy="110" r="24"/>
+                        <text x="70" y="115" text-anchor="middle">10</text>
+                    </g>
+                    <g class="node">
+                        <circle cx="170" cy="110" r="24"/>
+                        <text x="170" y="115" text-anchor="middle">30</text>
+                    </g>
+                    
+                    <text x="120" y="170" text-anchor="middle" fill="#7ee787" font-size="13" font-weight="600">✓ Balanceado</text>
+                    
+                    <!-- Árbol desbalanceado -->
+                    <line class="edge" x1="330" y1="50" x2="280" y2="110"/>
+                    <line class="edge" x1="280" y1="110" x2="240" y2="170"/>
+                    
+                    <g class="node unbalanced">
+                        <circle cx="330" cy="50" r="24"/>
+                        <text x="330" y="55" text-anchor="middle">30</text>
+                        <text x="360" y="45" class="balance-label">FB=2</text>
+                    </g>
+                    <g class="node">
+                        <circle cx="280" cy="110" r="24"/>
+                        <text x="280" y="115" text-anchor="middle">20</text>
+                        <text x="310" y="105" class="balance-label">FB=1</text>
+                    </g>
+                    <g class="node">
+                        <circle cx="240" cy="170" r="24"/>
+                        <text x="240" y="175" text-anchor="middle">10</text>
+                    </g>
+                    
+                    <text x="310" y="200" text-anchor="middle" fill="#ff7b72" font-size="13" font-weight="600">✗ Desbalanceado</text>
+                </svg>
+            </div>
+
+            <div class="code-block">
+<span class="keyword">def</span> <span class="function">_height</span>(self, node):
+    <span class="comment"># Si el nodo es None, altura = 0</span>
+    <span class="keyword">return</span> node.height <span class="keyword">if</span> node <span class="keyword">else</span> <span class="number">0</span>
+
+<span class="keyword">def</span> <span class="function">_balance</span>(self, node):
+    <span class="comment"># FB = altura_izq - altura_der</span>
+    <span class="keyword">return</span> self._height(node.left) - self._height(node.right) <span class="keyword">if</span> node <span class="keyword">else</span> <span class="number">0</span>
+            </div>
+        </section>
+
+        <!-- Section 3: Rotations Introduction -->
+        <section class="section" id="section-3">
+            <span class="section-number">03</span>
+            <h2>🔄 Las Rotaciones: Tu Herramienta de Balance</h2>
+
+            <p>Cuando un árbol se desbalancea, usamos <strong>rotaciones</strong> para arreglarlo. Son como movimientos de "reorganización" que mantienen las propiedades del árbol de búsqueda.</p>
+
+            <div class="analogy-box">
+                <div class="emoji">💃</div>
+                <h4>Analogía: El Baile de los Nodos</h4>
+                <p>Imagina que los nodos están bailando. Cuando uno se "cansa" de estar arriba (está desbalanceado), cambia de posición con otro nodo. El que estaba abajo sube, y el de arriba baja. ¡Es un baile coordinado!</p>
+            </div>
+
+            <h3>Solo hay 2 rotaciones básicas:</h3>
+
+            <div class="case-grid">
+                <div class="case-card">
+                    <h4>↪️ Rotación Derecha</h4>
+                    <p>El hijo izquierdo sube y se convierte en la nueva raíz.</p>
+                    <p class="solution">Se usa cuando: FB > 1</p>
+                </div>
+                <div class="case-card">
+                    <h4>↩️ Rotación Izquierda</h4>
+                    <p>El hijo derecho sube y se convierte en la nueva raíz.</p>
+                    <p class="solution">Se usa cuando: FB < -1</p>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <strong>🎯 Propiedad clave:</strong> Después de una rotación, el árbol sigue siendo un árbol binario de búsqueda válido (izquierda < raíz < derecha).
+            </div>
+        </section>
+
+        <!-- Section 4: Right Rotation -->
+        <section class="section" id="section-4">
+            <span class="section-number">04</span>
+            <h2>↪️ Rotación Derecha (Right Rotation)</h2>
+
+            <p>Se usa cuando el árbol está <strong>"pesado hacia la izquierda"</strong> (FB > 1).</p>
+
+            <div class="rotation-container">
+                <div class="tree-container" style="margin: 0;">
+                    <p style="color: var(--accent-red); font-weight: 600; margin-bottom: 1rem;">ANTES (Desbalanceado)</p>
+                    <svg class="tree-svg" viewBox="0 0 200 200" width="180">
+                        <line class="edge" x1="140" y1="40" x2="90" y2="90"/>
+                        <line class="edge" x1="90" y1="90" x2="50" y2="140"/>
+                        <line class="edge" x1="90" y1="90" x2="120" y2="140"/>
+                        
+                        <g class="node unbalanced">
+                            <circle cx="140" cy="40" r="22"/>
+                            <text x="140" y="45" text-anchor="middle">Y</text>
+                        </g>
+                        <g class="node highlight">
+                            <circle cx="90" cy="90" r="22"/>
+                            <text x="90" y="95" text-anchor="middle">X</text>
+                        </g>
+                        <g class="node">
+                            <circle cx="50" cy="140" r="22"/>
+                            <text x="50" y="145" text-anchor="middle">A</text>
+                        </g>
+                        <g class="node">
+                            <circle cx="120" cy="140" r="22"/>
+                            <text x="120" y="145" text-anchor="middle">B</text>
+                        </g>
+                        <text x="170" y="90" fill="#8b949e" font-size="11">C</text>
+                    </svg>
+                </div>
+
+                <div class="rotation-arrow">➡️</div>
+
+                <div class="tree-container" style="margin: 0;">
+                    <p style="color: var(--accent-green); font-weight: 600; margin-bottom: 1rem;">DESPUÉS (Balanceado)</p>
+                    <svg class="tree-svg" viewBox="0 0 200 200" width="180">
+                        <line class="edge" x1="100" y1="40" x2="50" y2="90"/>
+                        <line class="edge" x1="100" y1="40" x2="150" y2="90"/>
+                        <line class="edge" x1="150" y1="90" x2="120" y2="140"/>
+                        
+                        <g class="node highlight">
+                            <circle cx="100" cy="40" r="22"/>
+                            <text x="100" y="45" text-anchor="middle">X</text>
+                        </g>
+                        <g class="node">
+                            <circle cx="50" cy="90" r="22"/>
+                            <text x="50" y="95" text-anchor="middle">A</text>
+                        </g>
+                        <g class="node">
+                            <circle cx="150" cy="90" r="22"/>
+                            <text x="150" y="95" text-anchor="middle">Y</text>
+                        </g>
+                        <g class="node">
+                            <circle cx="120" cy="140" r="22"/>
+                            <text x="120" y="145" text-anchor="middle">B</text>
+                        </g>
+                        <text x="175" y="140" fill="#8b949e" font-size="11">C</text>
+                    </svg>
+                </div>
+            </div>
+
+            <h3>Pasos de la Rotación Derecha:</h3>
+            <ol class="steps-list">
+                <li><strong>X</strong> (hijo izquierdo de Y) se convierte en la nueva raíz</li>
+                <li><strong>Y</strong> (raíz anterior) baja y se convierte en hijo derecho de X</li>
+                <li><strong>B</strong> (hijo derecho de X) se "adopta" como hijo izquierdo de Y</li>
+                <li>Los subárboles <strong>A</strong> y <strong>C</strong> permanecen en su lugar</li>
+            </ol>
+
+            <div class="code-block">
+<span class="keyword">def</span> <span class="function">_rotate_right</span>(self, y):
+    <span class="comment"># y es el nodo desbalanceado (la raíz actual del subárbol)</span>
+    
+    x = y.left           <span class="comment"># x será la nueva raíz</span>
+    B = x.right          <span class="comment"># Guardamos B (hijo derecho de x)</span>
+    
+    <span class="comment"># Realizamos la rotación</span>
+    x.right = y          <span class="comment"># y baja y se vuelve hijo derecho de x</span>
+    y.left = B           <span class="comment"># B se vuelve hijo izquierdo de y</span>
+    
+    <span class="comment"># Actualizamos alturas (¡el orden importa!)</span>
+    self._update_height(y)  <span class="comment"># Primero y (ahora está más abajo)</span>
+    self._update_height(x)  <span class="comment"># Luego x (la nueva raíz)</span>
+    
+    <span class="keyword">return</span> x  <span class="comment"># Devolvemos la nueva raíz del subárbol</span>
+            </div>
+
+            <div class="highlight-box success">
+                <strong>✅ ¿Por qué funciona?</strong> La propiedad del BST se mantiene porque: A < X < B < Y < C (antes y después de la rotación).
+            </div>
+        </section>
+
+        <!-- Section 5: Left Rotation -->
+        <section class="section" id="section-5">
+            <span class="section-number">05</span>
+            <h2>↩️ Rotación Izquierda (Left Rotation)</h2>
+
+            <p>Se usa cuando el árbol está <strong>"pesado hacia la derecha"</strong> (FB < -1). Es el espejo de la rotación derecha.</p>
+
+            <div class="rotation-container">
+                <div class="tree-container" style="margin: 0;">
+                    <p style="color: var(--accent-red); font-weight: 600; margin-bottom: 1rem;">ANTES (Desbalanceado)</p>
+                    <svg class="tree-svg" viewBox="0 0 200 200" width="180">
+                        <line class="edge" x1="60" y1="40" x2="110" y2="90"/>
+                        <line class="edge" x1="110" y1="90" x2="80" y2="140"/>
+                        <line class="edge" x1="110" y1="90" x2="150" y2="140"/>
+                        
+                        <g class="node unbalanced">
+                            <circle cx="60" cy="40" r="22"/>
+                            <text x="60" y="45" text-anchor="middle">X</text>
+                        </g>
+                        <g class="node highlight">
+                            <circle cx="110" cy="90" r="22"/>
+                            <text x="110" y="95" text-anchor="middle">Y</text>
+                        </g>
+                        <g class="node">
+                            <circle cx="80" cy="140" r="22"/>
+                            <text x="80" y="145" text-anchor="middle">B</text>
+                        </g>
+                        <g class="node">
+                            <circle cx="150" cy="140" r="22"/>
+                            <text x="150" y="145" text-anchor="middle">C</text>
+                        </g>
+                        <text x="30" y="90" fill="#8b949e" font-size="11">A</text>
+                    </svg>
+                </div>
+
+                <div class="rotation-arrow">➡️</div>
+
+                <div class="tree-container" style="margin: 0;">
+                    <p style="color: var(--accent-green); font-weight: 600; margin-bottom: 1rem;">DESPUÉS (Balanceado)</p>
+                    <svg class="tree-svg" viewBox="0 0 200 200" width="180">
+                        <line class="edge" x1="100" y1="40" x2="50" y2="90"/>
+                        <line class="edge" x1="100" y1="40" x2="150" y2="90"/>
+                        <line class="edge" x1="50" y1="90" x2="80" y2="140"/>
+                        
+                        <g class="node highlight">
+                            <circle cx="100" cy="40" r="22"/>
+                            <text x="100" y="45" text-anchor="middle">Y</text>
+                        </g>
+                        <g class="node">
+                            <circle cx="50" cy="90" r="22"/>
+                            <text x="50" y="95" text-anchor="middle">X</text>
+                        </g>
+                        <g class="node">
+                            <circle cx="150" cy="90" r="22"/>
+                            <text x="150" y="95" text-anchor="middle">C</text>
+                        </g>
+                        <g class="node">
+                            <circle cx="80" cy="140" r="22"/>
+                            <text x="80" y="145" text-anchor="middle">B</text>
+                        </g>
+                        <text x="25" y="140" fill="#8b949e" font-size="11">A</text>
+                    </svg>
+                </div>
+            </div>
+
+            <h3>Pasos de la Rotación Izquierda:</h3>
+            <ol class="steps-list">
+                <li><strong>Y</strong> (hijo derecho de X) se convierte en la nueva raíz</li>
+                <li><strong>X</strong> (raíz anterior) baja y se convierte en hijo izquierdo de Y</li>
+                <li><strong>B</strong> (hijo izquierdo de Y) se "adopta" como hijo derecho de X</li>
+                <li>Los subárboles <strong>A</strong> y <strong>C</strong> permanecen en su lugar</li>
+            </ol>
+
+            <div class="code-block">
+<span class="keyword">def</span> <span class="function">_rotate_left</span>(self, x):
+    <span class="comment"># x es el nodo desbalanceado (la raíz actual del subárbol)</span>
+    
+    y = x.right          <span class="comment"># y será la nueva raíz</span>
+    B = y.left           <span class="comment"># Guardamos B (hijo izquierdo de y)</span>
+    
+    <span class="comment"># Realizamos la rotación</span>
+    y.left = x           <span class="comment"># x baja y se vuelve hijo izquierdo de y</span>
+    x.right = B          <span class="comment"># B se vuelve hijo derecho de x</span>
+    
+    <span class="comment"># Actualizamos alturas (¡el orden importa!)</span>
+    self._update_height(x)  <span class="comment"># Primero x (ahora está más abajo)</span>
+    self._update_height(y)  <span class="comment"># Luego y (la nueva raíz)</span>
+    
+    <span class="keyword">return</span> y  <span class="comment"># Devolvemos la nueva raíz del subárbol</span>
+            </div>
+        </section>
+
+        <!-- Section 6: Four Cases -->
+        <section class="section" id="section-6">
+            <span class="section-number">06</span>
+            <h2>🎯 Los 4 Casos de Desbalance</h2>
+
+            <p>Cuando insertas un nodo, pueden ocurrir <strong>4 tipos de desbalance</strong>. Cada uno tiene su solución específica:</p>
+
+            <div class="case-grid">
+                <div class="case-card">
+                    <h4>Caso 1: Izquierda-Izquierda (LL)</h4>
+                    <p>El nodo nuevo se insertó en el <strong>subárbol izquierdo del hijo izquierdo</strong>.</p>
+                    <p>FB > 1 y clave < hijo_izquierdo.clave</p>
+                    <p class="solution">→ Rotación Derecha simple</p>
+                </div>
+                <div class="case-card">
+                    <h4>Caso 2: Derecha-Derecha (RR)</h4>
+                    <p>El nodo nuevo se insertó en el <strong>subárbol derecho del hijo derecho</strong>.</p>
+                    <p>FB < -1 y clave > hijo_derecho.clave</p>
+                    <p class="solution">→ Rotación Izquierda simple</p>
+                </div>
+                <div class="case-card">
+                    <h4>Caso 3: Izquierda-Derecha (LR)</h4>
+                    <p>El nodo nuevo se insertó en el <strong>subárbol derecho del hijo izquierdo</strong>.</p>
+                    <p>FB > 1 y clave > hijo_izquierdo.clave</p>
+                    <p class="solution">→ Rotación Izquierda + Derecha</p>
+                </div>
+                <div class="case-card">
+                    <h4>Caso 4: Derecha-Izquierda (RL)</h4>
+                    <p>El nodo nuevo se insertó en el <strong>subárbol izquierdo del hijo derecho</strong>.</p>
+                    <p>FB < -1 y clave < hijo_derecho.clave</p>
+                    <p class="solution">→ Rotación Derecha + Izquierda</p>
+                </div>
+            </div>
+
+            <h3>Ejemplo Visual: Caso LR (Doble Rotación)</h3>
+            <p>El caso más "tricky". Veamos paso a paso:</p>
+
+            <div class="tree-container">
+                <svg class="tree-svg" viewBox="0 0 600 180" width="100%">
+                    <!-- Estado 1: Desbalanceado LR -->
+                    <text x="90" y="15" text-anchor="middle" fill="#ff7b72" font-weight="600" font-size="12">1. Desbalanceado (LR)</text>
+                    <line class="edge" x1="90" y1="45" x2="50" y2="95"/>
+                    <line class="edge" x1="50" y1="95" x2="70" y2="145"/>
+                    
+                    <g class="node unbalanced">
+                        <circle cx="90" cy="45" r="18"/>
+                        <text x="90" y="50" text-anchor="middle" font-size="12">30</text>
+                    </g>
+                    <g class="node">
+                        <circle cx="50" cy="95" r="18"/>
+                        <text x="50" y="100" text-anchor="middle" font-size="12">10</text>
+                    </g>
+                    <g class="node highlight">
+                        <circle cx="70" cy="145" r="18"/>
+                        <text x="70" y="150" text-anchor="middle" font-size="12">20</text>
+                    </g>
+
+                    <!-- Flecha 1 -->
+                    <text x="150" y="95" fill="#ffa657" font-size="20">→</text>
+                    <text x="145" y="115" fill="#8b949e" font-size="9">Rot. Izq</text>
+
+                    <!-- Estado 2: Después de rotación izquierda -->
+                    <text x="250" y="15" text-anchor="middle" fill="#ffa657" font-weight="600" font-size="12">2. Después Rot. Izq</text>
+                    <line class="edge" x1="250" y1="45" x2="230" y2="95"/>
+                    <line class="edge" x1="230" y1="95" x2="210" y2="145"/>
+                    
+                    <g class="node unbalanced">
+                        <circle cx="250" cy="45" r="18"/>
+                        <text x="250" y="50" text-anchor="middle" font-size="12">30</text>
+                    </g>
+                    <g class="node highlight">
+                        <circle cx="230" cy="95" r="18"/>
+                        <text x="230" y="100" text-anchor="middle" font-size="12">20</text>
+                    </g>
+                    <g class="node">
+                        <circle cx="210" cy="145" r="18"/>
+                        <text x="210" y="150" text-anchor="middle" font-size="12">10</text>
+                    </g>
+
+                    <!-- Flecha 2 -->
+                    <text x="310" y="95" fill="#ffa657" font-size="20">→</text>
+                    <text x="305" y="115" fill="#8b949e" font-size="9">Rot. Der</text>
+
+                    <!-- Estado 3: Balanceado -->
+                    <text x="420" y="15" text-anchor="middle" fill="#7ee787" font-weight="600" font-size="12">3. ¡Balanceado!</text>
+                    <line class="edge" x1="420" y1="45" x2="380" y2="95"/>
+                    <line class="edge" x1="420" y1="45" x2="460" y2="95"/>
+                    
+                    <g class="node highlight">
+                        <circle cx="420" cy="45" r="18"/>
+                        <text x="420" y="50" text-anchor="middle" font-size="12">20</text>
+                    </g>
+                    <g class="node">
+                        <circle cx="380" cy="95" r="18"/>
+                        <text x="380" y="100" text-anchor="middle" font-size="12">10</text>
+                    </g>
+                    <g class="node">
+                        <circle cx="460" cy="95" r="18"/>
+                        <text x="460" y="100" text-anchor="middle" font-size="12">30</text>
+                    </g>
+                </svg>
+            </div>
+
+            <div class="code-block">
+<span class="comment"># En el método _insert, después de insertar:</span>
+
+balance = self._balance(node)
+
+<span class="comment"># Caso 1: Izquierda-Izquierda</span>
+<span class="keyword">if</span> balance > <span class="number">1</span> <span class="keyword">and</span> key < node.left.key:
+    <span class="keyword">return</span> self._rotate_right(node)
+
+<span class="comment"># Caso 2: Derecha-Derecha</span>
+<span class="keyword">if</span> balance < <span class="number">-1</span> <span class="keyword">and</span> key >= node.right.key:
+    <span class="keyword">return</span> self._rotate_left(node)
+
+<span class="comment"># Caso 3: Izquierda-Derecha (doble rotación)</span>
+<span class="keyword">if</span> balance > <span class="number">1</span> <span class="keyword">and</span> key >= node.left.key:
+    node.left = self._rotate_left(node.left)  <span class="comment"># Primero izquierda</span>
+    <span class="keyword">return</span> self._rotate_right(node)            <span class="comment"># Luego derecha</span>
+
+<span class="comment"># Caso 4: Derecha-Izquierda (doble rotación)</span>
+<span class="keyword">if</span> balance < <span class="number">-1</span> <span class="keyword">and</span> key < node.right.key:
+    node.right = self._rotate_right(node.right)  <span class="comment"># Primero derecha</span>
+    <span class="keyword">return</span> self._rotate_left(node)               <span class="comment"># Luego izquierda</span>
+            </div>
+
+            <div class="highlight-box info">
+                <strong>💡 Truco para recordar:</strong> En las rotaciones dobles (LR y RL), primero "enderezas" la forma del desbalance para convertirlo en un caso simple (LL o RR), y luego aplicas la rotación correspondiente.
+            </div>
+        </section>
+
+        <!-- Section 7: Interactive Demo & Quiz -->
+        <section class="section" id="section-7">
+            <span class="section-number">07</span>
+            <h2>🎮 Practica y Demuestra lo Aprendido</h2>
+
+            <h3>Demo Interactiva: Construye tu AVL</h3>
+            <p>Haz clic en los botones para insertar nodos y ver cómo se balancea el árbol:</p>
+
+            <div class="demo-controls">
+                <button class="btn btn-primary" onclick="insertNode(10)">Insertar 10</button>
+                <button class="btn btn-primary" onclick="insertNode(20)">Insertar 20</button>
+                <button class="btn btn-primary" onclick="insertNode(30)">Insertar 30</button>
+                <button class="btn btn-primary" onclick="insertNode(5)">Insertar 5</button>
+                <button class="btn btn-primary" onclick="insertNode(15)">Insertar 15</button>
+                <button class="btn btn-secondary" onclick="resetTree()">🔄 Reiniciar</button>
+            </div>
+
+            <div class="tree-container" id="demo-tree">
+                <p style="color: var(--text-secondary);">Árbol vacío. ¡Empieza a insertar nodos!</p>
+            </div>
+
+            <div id="demo-log" class="highlight-box info" style="display: none;">
+                <strong>📝 Último evento:</strong> <span id="log-text"></span>
+            </div>
+
+            <h3 style="margin-top: 2rem;">Quiz: ¿Entendiste el balanceo?</h3>
+
+            <div class="quiz-container">
+                <p class="quiz-question">1. Si un nodo tiene FB = 2 y su hijo izquierdo tiene FB = 1, ¿qué rotación necesitas?</p>
+                <div class="quiz-options" id="quiz-1">
+                    <div class="quiz-option" onclick="checkAnswer(1, 'a', this)">a) Rotación Izquierda</div>
+                    <div class="quiz-option" onclick="checkAnswer(1, 'b', this)">b) Rotación Derecha</div>
+                    <div class="quiz-option" onclick="checkAnswer(1, 'c', this)">c) Doble rotación (Izq + Der)</div>
+                    <div class="quiz-option" onclick="checkAnswer(1, 'd', this)">d) Doble rotación (Der + Izq)</div>
+                </div>
+                <div class="quiz-feedback" id="feedback-1"></div>
+            </div>
+
+            <div class="quiz-container">
+                <p class="quiz-question">2. En un AVL, ¿cuáles son los valores válidos para el factor de balance?</p>
+                <div class="quiz-options" id="quiz-2">
+                    <div class="quiz-option" onclick="checkAnswer(2, 'a', this)">a) Solo 0</div>
+                    <div class="quiz-option" onclick="checkAnswer(2, 'b', this)">b) -1, 0, 1</div>
+                    <div class="quiz-option" onclick="checkAnswer(2, 'c', this)">c) -2, -1, 0, 1, 2</div>
+                    <div class="quiz-option" onclick="checkAnswer(2, 'd', this)">d) Cualquier número</div>
+                </div>
+                <div class="quiz-feedback" id="feedback-2"></div>
+            </div>
+
+            <div class="quiz-container">
+                <p class="quiz-question">3. ¿Cuál es la complejidad de búsqueda en un AVL con n nodos?</p>
+                <div class="quiz-options" id="quiz-3">
+                    <div class="quiz-option" onclick="checkAnswer(3, 'a', this)">a) O(n)</div>
+                    <div class="quiz-option" onclick="checkAnswer(3, 'b', this)">b) O(log n)</div>
+                    <div class="quiz-option" onclick="checkAnswer(3, 'c', this)">c) O(n²)</div>
+                    <div class="quiz-option" onclick="checkAnswer(3, 'd', this)">d) O(1)</div>
+                </div>
+                <div class="quiz-feedback" id="feedback-3"></div>
+            </div>
+
+            <div class="highlight-box success" style="margin-top: 2rem;">
+                <strong>🎉 ¡Felicidades!</strong> Has completado la guía de árboles AVL. Ahora entiendes cómo funcionan las rotaciones y por qué son importantes para mantener el balance. ¡Sigue practicando!
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>Guía interactiva de Árboles AVL | Hecha con 💚 para estudiantes de programación</p>
+    </footer>
+
+    <script>
+        // ============================================
+        // Interactive AVL Tree Demo
+        // ============================================
+        
+        class AVLNode {
+            constructor(key) {
+                this.key = key;
+                this.height = 1;
+                this.left = null;
+                this.right = null;
+            }
+        }
+
+        class AVLTreeDemo {
+            constructor() {
+                this.root = null;
+                this.lastOperation = '';
+            }
+
+            height(node) {
+                return node ? node.height : 0;
+            }
+
+            updateHeight(node) {
+                node.height = 1 + Math.max(this.height(node.left), this.height(node.right));
+            }
+
+            balance(node) {
+                return node ? this.height(node.left) - this.height(node.right) : 0;
+            }
+
+            rotateRight(y) {
+                this.lastOperation = `Rotación Derecha en nodo ${y.key}`;
+                const x = y.left;
+                const T2 = x.right;
+
+                x.right = y;
+                y.left = T2;
+
+                this.updateHeight(y);
+                this.updateHeight(x);
+
+                return x;
+            }
+
+            rotateLeft(x) {
+                this.lastOperation = `Rotación Izquierda en nodo ${x.key}`;
+                const y = x.right;
+                const T2 = y.left;
+
+                y.left = x;
+                x.right = T2;
+
+                this.updateHeight(x);
+                this.updateHeight(y);
+
+                return y;
+            }
+
+            insert(key) {
+                this.lastOperation = `Insertando ${key}...`;
+                this.root = this._insert(this.root, key);
+            }
+
+            _insert(node, key) {
+                if (!node) {
+                    this.lastOperation = `Nodo ${key} insertado`;
+                    return new AVLNode(key);
+                }
+
+                if (key < node.key) {
+                    node.left = this._insert(node.left, key);
+                } else if (key > node.key) {
+                    node.right = this._insert(node.right, key);
+                } else {
+                    return node; // Duplicates not allowed
+                }
+
+                this.updateHeight(node);
+                const bal = this.balance(node);
+
+                // LL
+                if (bal > 1 && key < node.left.key) {
+                    return this.rotateRight(node);
+                }
+                // RR
+                if (bal < -1 && key > node.right.key) {
+                    return this.rotateLeft(node);
+                }
+                // LR
+                if (bal > 1 && key > node.left.key) {
+                    this.lastOperation = `Doble rotación (Izq+Der) en nodo ${node.key}`;
+                    node.left = this.rotateLeft(node.left);
+                    return this.rotateRight(node);
+                }
+                // RL
+                if (bal < -1 && key < node.right.key) {
+                    this.lastOperation = `Doble rotación (Der+Izq) en nodo ${node.key}`;
+                    node.right = this.rotateRight(node.right);
+                    return this.rotateLeft(node);
+                }
+
+                return node;
+            }
+
+            render() {
+                const container = document.getElementById('demo-tree');
+                if (!this.root) {
+                    container.innerHTML = '<p style="color: var(--text-secondary);">Árbol vacío. ¡Empieza a insertar nodos!</p>';
+                    return;
+                }
+
+                const width = 400;
+                const height = 250;
+                const nodeRadius = 22;
+                
+                let svg = `<svg viewBox="0 0 ${width} ${height}" width="100%" style="max-width: 400px;">`;
+                
+                // Calculate positions
+                const positions = new Map();
+                this._calculatePositions(this.root, width / 2, 40, width / 4, positions);
+                
+                // Draw edges
+                this._drawEdges(this.root, positions, (edge) => { svg += edge; });
+                
+                // Draw nodes
+                this._drawNodes(this.root, positions, (node) => { svg += node; });
+                
+                svg += '</svg>';
+                container.innerHTML = svg;
+            }
+
+            _calculatePositions(node, x, y, offset, positions) {
+                if (!node) return;
+                positions.set(node.key, { x, y });
+                
+                if (node.left) {
+                    this._calculatePositions(node.left, x - offset, y + 55, offset / 2, positions);
+                }
+                if (node.right) {
+                    this._calculatePositions(node.right, x + offset, y + 55, offset / 2, positions);
+                }
+            }
+
+            _drawEdges(node, positions, callback) {
+                if (!node) return;
+                const pos = positions.get(node.key);
+                
+                if (node.left) {
+                    const leftPos = positions.get(node.left.key);
+                    callback(`<line class="edge" x1="${pos.x}" y1="${pos.y}" x2="${leftPos.x}" y2="${leftPos.y}"/>`);
+                    this._drawEdges(node.left, positions, callback);
+                }
+                if (node.right) {
+                    const rightPos = positions.get(node.right.key);
+                    callback(`<line class="edge" x1="${pos.x}" y1="${pos.y}" x2="${rightPos.x}" y2="${rightPos.y}"/>`);
+                    this._drawEdges(node.right, positions, callback);
+                }
+            }
+
+            _drawNodes(node, positions, callback) {
+                if (!node) return;
+                const pos = positions.get(node.key);
+                const bal = this.balance(node);
+                const isUnbalanced = Math.abs(bal) > 1;
+                
+                callback(`
+                    <g class="node ${isUnbalanced ? 'unbalanced' : ''}">
+                        <circle cx="${pos.x}" cy="${pos.y}" r="22"/>
+                        <text x="${pos.x}" y="${pos.y + 5}" text-anchor="middle">${node.key}</text>
+                        <text x="${pos.x + 28}" y="${pos.y - 8}" class="height-label">h=${node.height}</text>
+                        <text x="${pos.x + 28}" y="${pos.y + 8}" class="balance-label">FB=${bal}</text>
+                    </g>
+                `);
+                
+                this._drawNodes(node.left, positions, callback);
+                this._drawNodes(node.right, positions, callback);
+            }
+        }
+
+        const tree = new AVLTreeDemo();
+
+        function insertNode(value) {
+            tree.insert(value);
+            tree.render();
+            
+            const logDiv = document.getElementById('demo-log');
+            const logText = document.getElementById('log-text');
+            logDiv.style.display = 'block';
+            logText.textContent = tree.lastOperation;
+        }
+
+        function resetTree() {
+            tree.root = null;
+            tree.render();
+            document.getElementById('demo-log').style.display = 'none';
+        }
+
+        // ============================================
+        // Quiz Logic
+        // ============================================
+        
+        const answers = {
+            1: 'b',
+            2: 'b',
+            3: 'b'
+        };
+
+        const explanations = {
+            1: {
+                correct: '¡Correcto! FB=2 con hijo izquierdo FB=1 es el caso LL (Izquierda-Izquierda), que se resuelve con una rotación derecha simple.',
+                incorrect: 'Incorrecto. FB=2 con hijo izquierdo FB=1 es el caso LL, que requiere una rotación DERECHA simple.'
+            },
+            2: {
+                correct: '¡Exacto! En un AVL, el factor de balance debe ser -1, 0, o 1. Cualquier otro valor indica desbalance.',
+                incorrect: 'Incorrecto. Los únicos valores válidos son -1, 0 y 1. Valores fuera de este rango requieren rotación.'
+            },
+            3: {
+                correct: '¡Perfecto! Al mantener el balance, un AVL garantiza búsqueda O(log n), que es su principal ventaja.',
+                incorrect: 'Incorrecto. Gracias al balance, un AVL siempre tiene altura O(log n), por lo que la búsqueda es O(log n).'
+            }
+        };
+
+        function checkAnswer(question, answer, element) {
+            const container = document.getElementById(`quiz-${question}`);
+            const feedback = document.getElementById(`feedback-${question}`);
+            const options = container.querySelectorAll('.quiz-option');
+            
+            // Disable all options
+            options.forEach(opt => opt.style.pointerEvents = 'none');
+            
+            const isCorrect = answer === answers[question];
+            
+            // Mark selected option
+            element.classList.add(isCorrect ? 'correct' : 'incorrect');
+            
+            // If wrong, show correct answer
+            if (!isCorrect) {
+                options.forEach(opt => {
+                    if (opt.textContent.startsWith(answers[question] + ')')) {
+                        opt.classList.add('correct');
+                    }
+                });
+            }
+            
+            // Show feedback
+            feedback.textContent = isCorrect ? explanations[question].correct : explanations[question].incorrect;
+            feedback.className = `quiz-feedback show ${isCorrect ? 'correct' : 'incorrect'}`;
+        }
+
+        // ============================================
+        // Navigation dots
+        // ============================================
+        
+        document.querySelectorAll('.nav-dot').forEach(dot => {
+            dot.addEventListener('click', () => {
+                const section = dot.dataset.section;
+                document.getElementById(`section-${section}`).scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+
+        // Update active dot on scroll
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('.section');
+            const dots = document.querySelectorAll('.nav-dot');
+            
+            let current = '';
+            sections.forEach(section => {
+                const rect = section.getBoundingClientRect();
+                if (rect.top <= 200) {
+                    current = section.id.replace('section-', '');
+                }
+            });
+            
+            dots.forEach(dot => {
+                dot.classList.remove('active');
+                if (dot.dataset.section === current) {
+                    dot.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

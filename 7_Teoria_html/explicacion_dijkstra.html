@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial: Algoritmo de Dijkstra con Árboles AVL</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .section {
+            margin-bottom: 50px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+        }
+
+        .section h2 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .section h3 {
+            color: #764ba2;
+            font-size: 1.5em;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+
+        .analogy {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .analogy strong {
+            color: #856404;
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .code-block {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+
+        .code-block .keyword {
+            color: #c678dd;
+        }
+
+        .code-block .class-name {
+            color: #e5c07b;
+        }
+
+        .code-block .function {
+            color: #61afef;
+        }
+
+        .code-block .string {
+            color: #98c379;
+        }
+
+        .code-block .comment {
+            color: #5c6370;
+            font-style: italic;
+        }
+
+        .example {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .example strong {
+            color: #0c5460;
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .important {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .important strong {
+            color: #721c24;
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .step {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .step-number {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            width: 35px;
+            height: 35px;
+            line-height: 35px;
+            text-align: center;
+            border-radius: 50%;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+
+        .diagram {
+            background: white;
+            padding: 30px;
+            margin: 20px 0;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px dashed #667eea;
+        }
+
+        .diagram pre {
+            font-family: monospace;
+            font-size: 0.9em;
+            line-height: 1.8;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .key-concept {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .key-concept strong {
+            color: #155724;
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        ul, ol {
+            margin-left: 30px;
+            margin-top: 15px;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        .toc {
+            background: #e9ecef;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .toc h3 {
+            color: #495057;
+            margin-bottom: 15px;
+        }
+
+        .toc ul {
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .toc li {
+            padding: 8px 0;
+        }
+
+        .toc a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .toc a:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+
+        footer {
+            background: #343a40;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .visual-representation {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border: 2px solid #667eea;
+        }
+
+        .visual-representation svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .content {
+                padding: 20px 15px;
+            }
+
+            .section {
+                padding: 20px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🗺️ Tutorial: Algoritmo de Dijkstra con Árboles AVL</h1>
+            <p>Aprende a encontrar el camino más corto en un grafo paso a paso</p>
+        </header>
+
+        <div class="content">
+            <div class="toc">
+                <h3>📑 Índice de Contenidos</h3>
+                <ul>
+                    <li><a href="#intro">1. ¿Qué vamos a construir?</a></li>
+                    <li><a href="#grafos">2. Entendiendo los Grafos</a></li>
+                    <li><a href="#avl">3. El Árbol AVL (Cola de Prioridad)</a></li>
+                    <li><a href="#dijkstra">4. Algoritmo de Dijkstra</a></li>
+                    <li><a href="#codigo">5. Explicación del Código</a></li>
+                    <li><a href="#ejemplo">6. Ejemplo Práctico Completo</a></li>
+                </ul>
+            </div>
+
+            <!-- SECCIÓN 1: INTRODUCCIÓN -->
+            <div class="section" id="intro">
+                <h2>1. ¿Qué vamos a construir?</h2>
+                
+                <div class="analogy">
+                    <strong>🚗 Imagina esto:</strong>
+                    Tienes un mapa de ciudades conectadas por carreteras. Cada carretera tiene una distancia diferente. Quieres encontrar la ruta más corta desde tu ciudad hasta otra ciudad específica.
+                </div>
+
+                <p>Este programa hace exactamente eso, pero en lugar de ciudades usa <strong>nodos</strong> (puntos) y en lugar de carreteras usa <strong>aristas</strong> (conexiones con peso).</p>
+
+                <h3>Conceptos Clave:</h3>
+                <ul>
+                    <li><strong>Grafo:</strong> Un conjunto de puntos (nodos) conectados por líneas (aristas)</li>
+                    <li><strong>Peso:</strong> El "costo" o "distancia" de ir de un punto a otro</li>
+                    <li><strong>Camino más corto:</strong> La ruta con menor suma de pesos</li>
+                    <li><strong>AVL Tree:</strong> Una estructura que nos ayuda a elegir siempre el nodo más cercano</li>
+                </ul>
+
+                <div class="diagram">
+                    <h4>Ejemplo Visual de un Grafo:</h4>
+                    <pre>
+    A ----4---- B
+    |           |
+    2           5
+    |           |
+    C ----1---- D
+    |           |
+    10          2
+    |           |
+    E ----------+
+                    </pre>
+                    <p><em>Los números representan distancias entre ciudades</em></p>
+                </div>
+            </div>
+
+            <!-- SECCIÓN 2: GRAFOS -->
+            <div class="section" id="grafos">
+                <h2>2. Entendiendo los Grafos</h2>
+
+                <h3>2.1. ¿Qué es una Arista (GraphEdge)?</h3>
+                
+                <div class="analogy">
+                    <strong>🛣️ Piensa en una carretera:</strong>
+                    Una arista es como una carretera que conecta dos ciudades. Tiene un punto de inicio, un punto final, y una distancia.
+                </div>
+
+                <div class="code-block">
+<span class="keyword">class</span> <span class="class-name">GraphEdge</span>:
+    <span class="keyword">def</span> <span class="function">__init__</span>(self, source, destination, weight):
+        self.source = source          <span class="comment"># Ciudad de origen</span>
+        self.destination = destination <span class="comment"># Ciudad de destino</span>
+        self.weight = weight          <span class="comment"># Distancia (kilómetros)</span>
+                </div>
+
+                <div class="example">
+                    <strong>📝 Ejemplo:</strong>
+                    Si hay una carretera de Madrid a Barcelona de 620 km:
+                    <ul>
+                        <li><strong>source:</strong> Madrid</li>
+                        <li><strong>destination:</strong> Barcelona</li>
+                        <li><strong>weight:</strong> 620</li>
+                    </ul>
+                </div>
+
+                <h3>2.2. ¿Qué es un Nodo (GraphNode)?</h3>
+
+                <div class="analogy">
+                    <strong>🏙️ Piensa en una ciudad:</strong>
+                    Un nodo es como una ciudad. Tiene un nombre y una lista de todas las carreteras que salen de ella.
+                </div>
+
+                <div class="code-block">
+<span class="keyword">class</span> <span class="class-name">GraphNode</span>:
+    <span class="keyword">def</span> <span class="function">__init__</span>(self, name):
+        self.name = name                  <span class="comment"># Nombre de la ciudad</span>
+        self.edges = []                   <span class="comment"># Lista de carreteras</span>
+        self.distance = <span class="string">float('inf')</span>  <span class="comment"># Distancia desde el inicio (infinito inicialmente)</span>
+        self.previous = <span class="keyword">None</span>              <span class="comment"># Ciudad anterior en el camino óptimo</span>
+                </div>
+
+                <div class="key-concept">
+                    <strong>💡 Concepto Importante:</strong>
+                    <ul>
+                        <li><strong>distance:</strong> Guarda la distancia más corta encontrada desde el inicio. Empieza en "infinito" porque aún no sabemos cuál es.</li>
+                        <li><strong>previous:</strong> Guarda de dónde venimos, para poder reconstruir el camino completo después.</li>
+                    </ul>
+                </div>
+
+                <h3>2.3. El Grafo Completo (Graph)</h3>
+
+                <div class="analogy">
+                    <strong>🗺️ Piensa en un mapa completo:</strong>
+                    El grafo es como el mapa entero que contiene todas las ciudades y todas las carreteras.
+                </div>
+
+                <div class="code-block">
+<span class="keyword">class</span> <span class="class-name">Graph</span>:
+    <span class="keyword">def</span> <span class="function">__init__</span>(self):
+        self.nodes = {}  <span class="comment"># Diccionario: nombre_ciudad -> objeto_ciudad</span>
+
+    <span class="keyword">def</span> <span class="function">add_edge</span>(self, source_name, destination_name, weight):
+        <span class="comment"># Crea dos ciudades si no existen</span>
+        source = self.<span class="function">add_node</span>(source_name)
+        destination = self.<span class="function">add_node</span>(destination_name)
+        <span class="comment"># Añade una carretera desde source hacia destination</span>
+        source.<span class="function">add_edge</span>(destination, weight)
+                </div>
+
+                <div class="example">
+                    <strong>📝 Ejemplo de uso:</strong>
+                    <div class="code-block">
+g = <span class="class-name">Graph</span>()
+g.<span class="function">add_edge</span>(<span class="string">"Madrid"</span>, <span class="string">"Barcelona"</span>, <span class="string">620</span>)
+g.<span class="function">add_edge</span>(<span class="string">"Madrid"</span>, <span class="string">"Valencia"</span>, <span class="string">350</span>)
+                    </div>
+                    <p>Esto crea un mapa con 3 ciudades y 2 carreteras.</p>
+                </div>
+            </div>
+
+            <!-- SECCIÓN 3: AVL -->
+            <div class="section" id="avl">
+                <h2>3. El Árbol AVL (Cola de Prioridad)</h2>
+
+                <div class="analogy">
+                    <strong>🎯 Piensa en una fila ordenada:</strong>
+                    Imagina que tienes una fila de personas ordenadas por altura. El Árbol AVL es como esa fila, pero automáticamente se reorganiza para que siempre puedas encontrar a la persona más baja muy rápido.
+                </div>
+
+                <h3>3.1. ¿Por qué necesitamos el AVL?</h3>
+
+                <p>En el algoritmo de Dijkstra, necesitamos <strong>elegir siempre el nodo con la menor distancia</strong>. El AVL nos permite:</p>
+                <ul>
+                    <li>✅ Insertar nuevas distancias rápidamente</li>
+                    <li>✅ Extraer la distancia más pequeña instantáneamente</li>
+                    <li>✅ Mantener todo ordenado automáticamente</li>
+                </ul>
+
+                <h3>3.2. Nodo del AVL (AVLNode)</h3>
+
+                <div class="code-block">
+<span class="keyword">class</span> <span class="class-name">AVLNode</span>:
+    <span class="keyword">def</span> <span class="function">__init__</span>(self, key, value):
+        self.key = key        <span class="comment"># Distancia (para ordenar)</span>
+        self.value = value    <span class="comment"># Ciudad asociada</span>
+        self.height = <span class="string">1</span>       <span class="comment"># Altura del nodo en el árbol</span>
+        self.left = <span class="keyword">None</span>      <span class="comment"># Hijo izquierdo</span>
+        self.right = <span class="keyword">None</span>     <span class="comment"># Hijo derecho</span>
+                </div>
+
+                <div class="diagram">
+                    <h4>Estructura del Árbol AVL:</h4>
+                    <pre>
+        [5]
+       /   \
+     [3]   [8]
+     / \   / \
+   [1][4][6][9]
+                    </pre>
+                    <p><em>Los números más pequeños siempre están a la izquierda</em></p>
+                </div>
+
+                <h3>3.3. Operaciones Principales del AVL</h3>
+
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <strong>Calcular Altura:</strong>
+                    <div class="code-block">
+<span class="keyword">def</span> <span class="function">_height</span>(self, node):
+    <span class="keyword">return</span> node.height <span class="keyword">if</span> node <span class="keyword">else</span> <span class="string">0</span>
+                    </div>
+                    <p>Simplemente devuelve la altura del nodo, o 0 si no existe.</p>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <strong>Calcular Balance:</strong>
+                    <div class="code-block">
+<span class="keyword">def</span> <span class="function">_balance</span>(self, node):
+    <span class="keyword">return</span> self.<span class="function">_height</span>(node.left) - self.<span class="function">_height</span>(node.right)
+                    </div>
+                    <p>El balance indica si el árbol está inclinado hacia la izquierda o derecha.</p>
+                    <ul>
+                        <li><strong>Balance > 1:</strong> Inclinado a la izquierda (necesita rotación)</li>
+                        <li><strong>Balance < -1:</strong> Inclinado a la derecha (necesita rotación)</li>
+                        <li><strong>Balance entre -1 y 1:</strong> Balanceado ✅</li>
+                    </ul>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <strong>Rotaciones (Rebalanceo):</strong>
+                    <div class="analogy">
+                        <strong>🔄 Piensa en reorganizar:</strong>
+                        Imagina que tienes una torre de bloques inclinada. Las rotaciones son como mover bloques para que la torre quede recta otra vez.
+                    </div>
+
+                    <div class="diagram">
+                        <h4>Rotación a la Derecha:</h4>
+                        <pre>
+    Antes:        Después:
+      y              x
+     /              / \
+    x        →     A   y
+   / \                / \
+  A   B              B   C
+                        </pre>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">4</span>
+                    <strong>Insertar en el AVL:</strong>
+                    <div class="code-block">
+<span class="keyword">def</span> <span class="function">insert</span>(self, key, value):
+    self.root = self.<span class="function">_insert</span>(self.root, key, value)
+
+<span class="keyword">def</span> <span class="function">_insert</span>(self, node, key, value):
+    <span class="comment"># 1. Inserción normal (como árbol binario)</span>
+    <span class="keyword">if not</span> node:
+        <span class="keyword">return</span> <span class="class-name">AVLNode</span>(key, value)
+    
+    <span class="keyword">if</span> key < node.key:
+        node.left = self.<span class="function">_insert</span>(node.left, key, value)
+    <span class="keyword">else</span>:
+        node.right = self.<span class="function">_insert</span>(node.right, key, value)
+    
+    <span class="comment"># 2. Actualizar altura</span>
+    self.<span class="function">_update_height</span>(node)
+    
+    <span class="comment"># 3. Verificar balance y rotar si es necesario</span>
+    balance = self.<span class="function">_balance</span>(node)
+    
+    <span class="comment"># 4. Rotaciones según el caso</span>
+    <span class="keyword">if</span> balance > <span class="string">1</span> <span class="keyword">and</span> key < node.left.key:
+        <span class="keyword">return</span> self.<span class="function">_rotate_right</span>(node)
+    <span class="comment"># ... más casos ...</span>
+    
+    <span class="keyword">return</span> node
+                    </div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">5</span>
+                    <strong>Extraer el Mínimo:</strong>
+                    <div class="key-concept">
+                        <strong>💡 Concepto Clave:</strong>
+                        El elemento más pequeño SIEMPRE está en el extremo izquierdo del árbol.
+                    </div>
+
+                    <div class="code-block">
+<span class="keyword">def</span> <span class="function">extract_min</span>(self):
+    <span class="keyword">if not</span> self.root:
+        <span class="keyword">return</span> <span class="keyword">None</span>
+    
+    <span class="comment"># Extraer el nodo mínimo y rebalancear</span>
+    self.root, min_node = self.<span class="function">_extract_min</span>(self.root)
+    <span class="keyword">return</span> min_node.key, min_node.value
+
+<span class="keyword">def</span> <span class="function">_extract_min</span>(self, node):
+    <span class="comment"># Si no hay hijo izquierdo, este ES el mínimo</span>
+    <span class="keyword">if not</span> node.left:
+        <span class="keyword">return</span> node.right, node
+    
+    <span class="comment"># Buscar recursivamente a la izquierda</span>
+    node.left, min_node = self.<span class="function">_extract_min</span>(node.left)
+    
+    <span class="comment"># Rebalancear después de extraer</span>
+    self.<span class="function">_update_height</span>(node)
+    balance = self.<span class="function">_balance</span>(node)
+    
+    <span class="comment"># Rotaciones si es necesario...</span>
+    
+    <span class="keyword">return</span> node, min_node
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECCIÓN 4: DIJKSTRA -->
+            <div class="section" id="dijkstra">
+                <h2>4. Algoritmo de Dijkstra</h2>
+
+                <div class="analogy">
+                    <strong>🎮 Piensa en un videojuego:</strong>
+                    Imagina que eres un personaje en un mapa. Puedes ver todas las ciudades vecinas y sus distancias. Dijkstra es como explorar siempre la ciudad más cercana que aún no has visitado, hasta llegar a tu destino.
+                </div>
+
+                <h3>4.1. ¿Cómo funciona Dijkstra?</h3>
+
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <strong>Inicialización:</strong>
+                    <ul>
+                        <li>Marca todas las ciudades como "distancia infinita"</li>
+                        <li>Marca tu ciudad inicial como "distancia 0"</li>
+                        <li>Añade tu ciudad inicial a la cola de prioridad</li>
+                    </ul>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <strong>Proceso Principal:</strong>
+                    <ol>
+                        <li>Extrae la ciudad con menor distancia de la cola</li>
+                        <li>Explora todas sus carreteras vecinas</li>
+                        <li>Si encuentras un camino más corto a un vecino, actualízalo</li>
+                        <li>Añade ese vecino a la cola de prioridad</li>
+                        <li>Repite hasta que la cola esté vacía</li>
+                    </ol>
+                </div>
+
+                <div class="example">
+                    <strong>📝 Ejemplo Visual Paso a Paso:</strong>
+                    <div class="diagram">
+                        <pre>
+Grafo inicial:
+    A ----4---- B
+    |           |
+    2           5
+    |           |
+    C ----------+
+
+Paso 1: Empezamos en A
+    Distancias: A=0, B=∞, C=∞
+
+Paso 2: Exploramos desde A
+    A puede ir a B (distancia 4) y C (distancia 2)
+    Distancias: A=0, B=4, C=2
+
+Paso 3: Elegimos C (menor distancia = 2)
+    C puede ir a B con distancia 2+1=3
+    3 < 4, así que actualizamos B
+    Distancias: A=0, B=3, C=2
+
+Paso 4: Elegimos B (distancia = 3)
+    Exploramos vecinos de B...
+                        </pre>
+                    </div>
+                </div>
+
+                <h3>4.2. Código del Algoritmo</h3>
+
+                <div class="code-block">
+<span class="keyword">class</span> <span class="class-name">Dijkstra</span>:
+    <span class="keyword">def</span> <span class="function">__init__</span>(self, graph):
+        self.graph = graph
+
+    <span class="keyword">def</span> <span class="function">run</span>(self, start_name):
+        <span class="comment"># 1. Resetear todas las distancias a infinito</span>
+        self.graph.<span class="function">reset_distances</span>()
+        
+        <span class="comment"># 2. Obtener el nodo inicial</span>
+        start = self.graph.<span class="function">get_node</span>(start_name)
+        
+        <span class="comment"># 3. La distancia al inicio es 0</span>
+        start.distance = <span class="string">0</span>
+        
+        <span class="comment"># 4. Crear cola de prioridad (AVL)</span>
+        pq = <span class="class-name">AVLTree</span>()
+        pq.<span class="function">insert</span>(<span class="string">0</span>, start)
+        
+        <span class="comment"># 5. Mientras haya nodos por explorar</span>
+        <span class="keyword">while not</span> pq.<span class="function">is_empty</span>():
+            <span class="comment"># 5.1. Extraer el nodo con menor distancia</span>
+            dist, node = pq.<span class="function">extract_min</span>()
+            
+            <span class="comment"># 5.2. Si esta distancia es obsoleta, saltarla</span>
+            <span class="keyword">if</span> dist > node.distance:
+                <span class="keyword">continue</span>
+            
+            <span class="comment"># 5.3. Explorar todas las carreteras del nodo actual</span>
+            <span class="keyword">for</span> edge <span class="keyword">in</span> node.edges:
+                neighbor = edge.destination
+                new_dist = node.distance + edge.weight
+                
+                <span class="comment"># 5.4. Si encontramos un camino más corto</span>
+                <span class="keyword">if</span> new_dist < neighbor.distance:
+                    neighbor.distance = new_dist
+                    neighbor.previous = node
+                    pq.<span class="function">insert</span>(new_dist, neighbor)
+                </div>
+
+                <div class="important">
+                    <strong>⚠️ Punto Importante:</strong>
+                    <p><strong>¿Por qué verificamos <code>if dist > node.distance</code>?</strong></p>
+                    <p>Porque podemos añadir el mismo nodo varias veces a la cola con diferentes distancias. Solo queremos procesar la versión con la distancia más corta.</p>
+                </div>
+
+                <h3>4.3. Reconstruir el Camino</h3>
+
+                <div class="code-block">
+<span class="keyword">def</span> <span class="function">get_path</span>(self, destination_name):
+    dest = self.graph.<span class="function">get_node</span>(destination_name)
+    
+    <span class="comment"># Si no existe o es inalcanzable</span>
+    <span class="keyword">if not</span> dest <span class="keyword">or</span> dest.distance == <span class="string">float('inf')</span>:
+        <span class="keyword">return</span> []
+    
+    <span class="comment"># Reconstruir el camino hacia atrás</span>
+    path = []
+    current = dest
+    <span class="keyword">while</span> current:
+        path.<span class="function">append</span>(current.name)
+        current = current.previous
+    
+    <span class="comment"># Invertir para obtener el orden correcto</span>
+    <span class="keyword">return</span> path[::-<span class="string">1</span>]
+                </div>
+
+                <div class="analogy">
+                    <strong>🔙 Piensa en seguir un rastro:</strong>
+                    Es como seguir un camino de migas de pan hacia atrás. Cada nodo tiene guardado "de dónde vine", así que solo seguimos esos punteros hasta llegar al inicio.
+                </div>
+            </div>
+
+            <!-- SECCIÓN 5: EXPLICACIÓN COMPLETA DEL CÓDIGO -->
+            <div class="section" id="codigo">
+                <h2>5. Explicación Completa del Código</h2>
+
+                <h3>5.1. Resumen de Clases y Responsabilidades</h3>
+
+                <div class="key-concept">
+                    <strong>📋 Estructura del Programa:</strong>
+                    <ul>
+                        <li><strong>GraphEdge:</strong> Representa una carretera entre dos ciudades</li>
+                        <li><strong>GraphNode:</strong> Representa una ciudad con sus carreteras</li>
+                        <li><strong>Graph:</strong> El mapa completo con todas las ciudades</li>
+                        <li><strong>AVLNode:</strong> Un elemento en la cola de prioridad</li>
+                        <li><strong>AVLTree:</strong> La cola que mantiene todo ordenado</li>
+                        <li><strong>Dijkstra:</strong> El algoritmo que encuentra el camino más corto</li>
+                    </ul>
+                </div>
+
+                <h3>5.2. Flujo Completo del Programa</h3>
+
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <strong>Crear el Grafo:</strong>
+                    <div class="code-block">
+g = <span class="class-name">Graph</span>()
+g.<span class="function">add_edge</span>(<span class="string">"A"</span>, <span class="string">"B"</span>, <span class="string">4</span>)
+g.<span class="function">add_edge</span>(<span class="string">"A"</span>, <span class="string">"C"</span>, <span class="string">2</span>)
+                    </div>
+                    <p>Esto crea el mapa y añade carreteras entre ciudades.</p>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <strong>Crear el Algoritmo:</strong>
+                    <div class="code-block">
+dijkstra = <span class="class-name">Dijkstra</span>(g)
+                    </div>
+                    <p>Preparamos el algoritmo para trabajar con nuestro grafo.</p>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <strong>Ejecutar desde un Inicio:</strong>
+                    <div class="code-block">
+dijkstra.<span class="function">run</span>(<span class="string">"A"</span>)
+                    </div>
+                    <p>Calcula las distancias más cortas desde la ciudad A a todas las demás.</p>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">4</span>
+                    <strong>Obtener Resultados:</strong>
+                    <div class="code-block">
+path = dijkstra.<span class="function">get_path</span>(<span class="string">"E"</span>)
+distance = dijkstra.<span class="function">get_distance</span>(<span class="string">"E"</span>)
+                    </div>
+                    <p>Obtenemos el camino completo y la distancia total.</p>
+                </div>
+
+                <h3>5.3. ¿Cómo interactúan las Clases?</h3>
+
+                <div class="diagram">
+                    <pre>
+┌─────────────┐
+│   Graph     │ ← Contiene todos los nodos
+└──────┬──────┘
+       │
+       ├── GraphNode (A) ─┬── GraphEdge → B (peso: 4)
+       │                  └── GraphEdge → C (peso: 2)
+       │
+       ├── GraphNode (B) ─── GraphEdge → D (peso: 5)
+       │
+       └── GraphNode (C) ─┬── GraphEdge → B (peso: 1)
+                          └── GraphEdge → D (peso: 8)
+
+┌─────────────┐
+│  Dijkstra   │ ← Usa el grafo para calcular distancias
+└──────┬──────┘
+       │
+       └── AVLTree ← Mantiene nodos ordenados por distancia
+           │
+           ├── AVLNode (key: 0, value: A)
+           ├── AVLNode (key: 2, value: C)
+           └── AVLNode (key: 3, value: B)
+                    </pre>
+                </div>
+            </div>
+
+            <!-- SECCIÓN 6: EJEMPLO COMPLETO -->
+            <div class="section" id="ejemplo">
+                <h2>6. Ejemplo Práctico Completo</h2>
+
+                <h3>6.1. Escenario: Red de Ciudades</h3>
+
+                <div class="example">
+                    <strong>🗺️ Tenemos estas ciudades y carreteras:</strong>
+                    <ul>
+                        <li>A → B: 4 km</li>
+                        <li>A → C: 2 km</li>
+                        <li>C → B: 1 km</li>
+                        <li>B → D: 5 km</li>
+                        <li>C → D: 8 km</li>
+                        <li>C → E: 10 km</li>
+                        <li>D → E: 2 km</li>
+                        <li>D → F: 6 km</li>
+                        <li>E → F: 3 km</li>
+                    </ul>
+                    <p><strong>Pregunta:</strong> ¿Cuál es el camino más corto de A a F?</p>
+                </div>
+
+                <h3>6.2. Código Completo:</h3>
+
+                <div class="code-block">
+<span class="comment"># Crear el grafo</span>
+g = <span class="class-name">Graph</span>()
+
+<span class="comment"># Añadir todas las carreteras</span>
+g.<span class="function">add_edge</span>(<span class="string">"A"</span>, <span class="string">"B"</span>, <span class="string">4</span>)
+g.<span class="function">add_edge</span>(<span class="string">"A"</span>, <span class="string">"C"</span>, <span class="string">2</span>)
+g.<span class="function">add_edge</span>(<span class="string">"C"</span>, <span class="string">"B"</span>, <span class="string">1</span>)
+g.<span class="function">add_edge</span>(<span class="string">"B"</span>, <span class="string">"D"</span>, <span class="string">5</span>)
+g.<span class="function">add_edge</span>(<span class="string">"C"</span>, <span class="string">"D"</span>, <span class="string">8</span>)
+g.<span class="function">add_edge</span>(<span class="string">"C"</span>, <span class="string">"E"</span>, <span class="string">10</span>)
+g.<span class="function">add_edge</span>(<span class="string">"D"</span>, <span class="string">"E"</span>, <span class="string">2</span>)
+g.<span class="function">add_edge</span>(<span class="string">"D"</span>, <span class="string">"F"</span>, <span class="string">6</span>)
+g.<span class="function">add_edge</span>(<span class="string">"E"</span>, <span class="string">"F"</span>, <span class="string">3</span>)
+
+<span class="comment"># Crear y ejecutar Dijkstra desde A</span>
+dijkstra = <span class="class-name">Dijkstra</span>(g)
+dijkstra.<span class="function">run</span>(<span class="string">"A"</span>)
+
+<span class="comment"># Obtener el camino más corto de A a F</span>
+path = dijkstra.<span class="function">get_path</span>(<span class="string">"F"</span>)
+distance = dijkstra.<span class="function">get_distance</span>(<span class="string">"F"</span>)
+
+<span class="comment"># Mostrar resultados</span>
+<span class="function">print</span>(<span class="string">f"Camino: {' → '.join(path)}"</span>)
+<span class="function">print</span>(<span class="string">f"Distancia total: {distance} km"</span>)
+                </div>
+
+                <h3>6.3. Ejecución Paso a Paso:</h3>
+
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <strong>Inicio: Nodo A</strong>
+                    <div class="diagram">
+                        <pre>
+Cola AVL: [(0, A)]
+Distancias: A=0, B=∞, C=∞, D=∞, E=∞, F=∞
+                        </pre>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <strong>Explorar desde A</strong>
+                    <div class="diagram">
+                        <pre>
+Extraemos: A (distancia 0)
+Vecinos de A:
+  - B: 0 + 4 = 4 (actualizar)
+  - C: 0 + 2 = 2 (actualizar)
+
+Cola AVL: [(2, C), (4, B)]
+Distancias: A=0, B=4, C=2, D=∞, E=∞, F=∞
+                        </pre>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <strong>Explorar desde C</strong>
+                    <div class="diagram">
+                        <pre>
+Extraemos: C (distancia 2)
+Vecinos de C:
+  - B: 2 + 1 = 3 < 4 (actualizar)
+  - D: 2 + 8 = 10 (actualizar)
+  - E: 2 + 10 = 12 (actualizar)
+
+Cola AVL: [(3, B), (4, B_obsoleto), (10, D), (12, E)]
+Distancias: A=0, B=3, C=2, D=10, E=12, F=∞
+                        </pre>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">4</span>
+                    <strong>Explorar desde B</strong>
+                    <div class="diagram">
+                        <pre>
+Extraemos: B (distancia 3)
+Vecinos de B:
+  - D: 3 + 5 = 8 < 10 (actualizar)
+
+Cola AVL: [(4, B_obsoleto), (8, D), (10, D_obsoleto), (12, E)]
+Distancias: A=0, B=3, C=2, D=8, E=12, F=∞
+                        </pre>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">5</span>
+                    <strong>Explorar desde D</strong>
+                    <div class="diagram">
+                        <pre>
+Extraemos: D (distancia 8)
+Vecinos de D:
+  - E: 8 + 2 = 10 < 12 (actualizar)
+  - F: 8 + 6 = 14 (actualizar)
+
+Cola AVL: [(10, E), (12, E_obsoleto), (14, F)]
+Distancias: A=0, B=3, C=2, D=8, E=10, F=14
+                        </pre>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">6</span>
+                    <strong>Explorar desde E</strong>
+                    <div class="diagram">
+                        <pre>
+Extraemos: E (distancia 10)
+Vecinos de E:
+  - F: 10 + 3 = 13 < 14 (actualizar)
+
+Cola AVL: [(12, E_obsoleto), (13, F), (14, F_obsoleto)]
+Distancias: A=0, B=3, C=2, D=8, E=10, F=13
+                        </pre>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">7</span>
+                    <strong>Resultado Final</strong>
+                    <div class="key-concept">
+                        <strong>✅ Camino más corto encontrado:</strong>
+                        <p><strong>A → C → B → D → E → F</strong></p>
+                        <p><strong>Distancia total: 13 km</strong></p>
+                        <p>Desglose: A→C(2) + C→B(1) + B→D(5) + D→E(2) + E→F(3) = 13</p>
+                    </div>
+                </div>
+
+                <h3>6.4. Reconstrucción del Camino:</h3>
+
+                <div class="code-block">
+<span class="comment"># El método get_path recorre los "previous" hacia atrás</span>
+
+F.previous = E  <span class="comment"># F viene de E</span>
+E.previous = D  <span class="comment"># E viene de D</span>
+D.previous = B  <span class="comment"># D viene de B</span>
+B.previous = C  <span class="comment"># B viene de C</span>
+C.previous = A  <span class="comment"># C viene de A</span>
+A.previous = <span class="keyword">None</span> <span class="comment"># A es el inicio</span>
+
+<span class="comment"># Recorriendo hacia atrás desde F:</span>
+<span class="comment"># F → E → D → B → C → A</span>
+
+<span class="comment"># Invertimos para obtener:</span>
+<span class="comment"># A → C → B → D → E → F ✅</span>
+                </div>
+
+                <h3>6.5. Visualización del Resultado:</h3>
+
+                <div class="diagram">
+                    <h4>Grafo con el Camino Óptimo Marcado:</h4>
+                    <pre>
+    A ====2==== C ====1==== B
+                |           ║
+                10          ║5
+                |           ║
+                E           D
+                ║           ║
+                ║3          ║2
+                ║           ║
+                F ←=========+
+
+    ==== = Camino óptimo (grosor doble)
+    ---- = Otras carreteras no usadas
+                    </pre>
+                </div>
+
+                <div class="important">
+                    <strong>🎯 Lecciones Importantes:</strong>
+                    <ul>
+                        <li><strong>Greedy:</strong> Siempre elegimos el nodo más cercano disponible</li>
+                        <li><strong>Actualización:</strong> Si encontramos un camino mejor, lo actualizamos</li>
+                        <li><strong>AVL:</strong> Nos permite encontrar el mínimo muy rápido (O(log n))</li>
+                        <li><strong>Previous:</strong> Guardamos el camino para poder reconstruirlo después</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- RESUMEN FINAL -->
+            <div class="section">
+                <h2>📚 Resumen Final</h2>
+
+                <div class="key-concept">
+                    <strong>🎓 Lo que has aprendido:</strong>
+                    <ol>
+                        <li><strong>Grafos:</strong> Cómo representar mapas con nodos y aristas</li>
+                        <li><strong>Árbol AVL:</strong> Una estructura que mantiene datos ordenados automáticamente</li>
+                        <li><strong>Dijkstra:</strong> Un algoritmo para encontrar el camino más corto</li>
+                        <li><strong>Cola de Prioridad:</strong> Cómo usar el AVL para elegir siempre el mejor candidato</li>
+                        <li><strong>Relajación:</strong> Actualizar distancias cuando encontramos mejores caminos</li>
+                    </ol>
+                </div>
+
+                <div class="analogy">
+                    <strong>🌟 Analogía Final:</strong>
+                    <p>Piensa en Dijkstra como un explorador muy inteligente:</p>
+                    <ul>
+                        <li>Empieza en su ciudad natal</li>
+                        <li>Siempre visita la ciudad más cercana que no ha explorado</li>
+                        <li>Anota en un mapa las mejores rutas que va encontrando</li>
+                        <li>Al final, tiene el camino más corto a todas las ciudades</li>
+                    </ul>
+                </div>
+
+                <div class="important">
+                    <strong>💪 Complejidad del Algoritmo:</strong>
+                    <p><strong>Tiempo:</strong> O((V + E) log V)</p>
+                    <ul>
+                        <li><strong>V:</strong> Número de nodos (ciudades)</li>
+                        <li><strong>E:</strong> Número de aristas (carreteras)</li>
+                        <li><strong>log V:</strong> Tiempo de operaciones en el AVL</li>
+                    </ul>
+                    <p>Esto significa que el algoritmo es muy eficiente incluso con miles de ciudades.</p>
+                </div>
+
+                <div class="example">
+                    <strong>🚀 Aplicaciones en el Mundo Real:</strong>
+                    <ul>
+                        <li><strong>GPS y Navegación:</strong> Google Maps usa variantes de Dijkstra</li>
+                        <li><strong>Redes de Computadoras:</strong> Encontrar la ruta más rápida para datos</li>
+                        <li><strong>Juegos:</strong> Movimiento de NPCs y pathfinding</li>
+                        <li><strong>Logística:</strong> Optimización de rutas de entrega</li>
+                        <li><strong>Redes Sociales:</strong> Encontrar conexiones entre personas</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+
+        <footer>
+            <p>📖 Tutorial creado para comprender el Algoritmo de Dijkstra con Árboles AVL</p>
+            <p>💡 Recuerda: La programación se aprende practicando. ¡Intenta modificar el código y experimentar!</p>
+        </footer>
+    </div>
+</body>
+</html>
